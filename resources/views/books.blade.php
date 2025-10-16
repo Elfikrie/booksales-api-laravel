@@ -46,22 +46,32 @@
     </style>
 </head>
 <body>
-    <h1>Selamat Datang di Halaman Genre</h1>
+    <h1>Selamat Datang di Halaman Books</h1>
     <table border="1">
         <thead>
             <tr>
                 <th>No</th>
-                <th>Nama Genre</th>
+                <th>Title</th>
                 <th>Deskripsi</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Cover Photo</th>
+                <th>Genre</th>
+                <th>Author</th>
             </tr>
         </thead>
         <tbody>
             {{-- Melakukan perulangan (looping) data $genres --}}
-            @foreach ($genres as $item)
+            @foreach ($books as $item)
                 <tr>
                     <td>{{ $item['id'] }}</td>
-                    <td><strong>{{ $item['name'] }}</strong></td>
+                    <td><strong>{{ $item['title'] }}</strong></td>
                     <td class="description-cell">{{ $item['description'] }}</td>
+                    <td>{{ $item['price'] }}</td>
+                    <td>{{ $item['stock'] }}</td>
+                    <td><a href="#">{{ $item['cover_photo'] }}</a></td>
+                    <td>{{ $item['genre_id'] }}</td>
+                    <td>{{ $item['author_id'] }}</td>
                 </tr>
             @endforeach
         </tbody>
