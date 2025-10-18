@@ -1,9 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Genre;
 
+use App\Models\Book;
+use App\Models\Genre;
+use GuzzleHttp\Promise\Create;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class GenreController extends Controller
 {
@@ -12,9 +16,14 @@ class GenreController extends Controller
      */
     public function index()
     {
-        // $data = new Genre();
-        // $genres = $data->getGenres();
         $genres = Genre::all();
+
+        if($genres->isEmpty()){
+            return response()->json([
+                'success' => true,
+                'message' => "Resouces data not found"
+            ], 400);
+        }
 
         // return view('genre', ['genres' => $genres]);
         return response([
@@ -29,7 +38,7 @@ class GenreController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**
@@ -38,6 +47,28 @@ class GenreController extends Controller
     public function store(Request $request)
     {
         //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'description' => 'required|max:255'
+        ]);
+
+        if ($validator->fails()){
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()
+            ], 422);
+        };
+
+        $validateData = $validator->validated();
+
+        Genre::create($validateData);
+        $genres = Genre::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Add Resources Is Success',
+            'data' => $genres
+        ], 200);
     }
 
     /**

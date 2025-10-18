@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 use App\Models\Author;
-
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends Controller
 {
@@ -12,9 +13,14 @@ class AuthorController extends Controller
      */
     public function index()
     {
-        // $data = new Author();
-        // $authors = $data->getAuthors();
         $authors = Author::all();
+
+        if($authors->isEmpty()){
+            return response()->json([
+                'success' => true,
+                'message' => 'Resouces data not found'
+            ], 200);
+        }
 
         // return view('authors', ['authors' => $authors]);
         return response()->json([
@@ -38,6 +44,29 @@ class AuthorController extends Controller
     public function store(Request $request)
     {
         //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:255',
+            'photo' => 'required',
+            'bio' => 'required|max:255'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'success' => false,
+                'message' => $validator
+            ], 200);
+        }
+
+        $validateData = $validator->validate();
+
+        Author::create($validateData);
+        $authors = Author::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Add Resource is Success',
+            'data' => $authors
+        ], 200);
     }
 
     /**
