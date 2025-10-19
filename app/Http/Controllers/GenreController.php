@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Genre;
 use GuzzleHttp\Promise\Create;
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -76,7 +77,23 @@ class GenreController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $genre = Genre::find($id);
+
+        if(!$genre){
+            $data = [
+                'success' => false,
+                'message' => 'data not found',
+            ];
+            return response()->json($data, 404);
+        }
+
+        $data = [
+            'success' => true,
+            'message' => 'data is found',
+            'data' => $genre
+        ];
+
+        return response()->json($data, 200);
     }
 
     /**
@@ -92,7 +109,42 @@ class GenreController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $genre = Genre::find($id);
+
+        if(!$genre){
+            return response()->json([
+                'success' => false,
+                'message' => "Data not found"
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(),[
+            'name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:255'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'success' => false,
+                'message' => 'data is wrong',
+                'data' => $validator
+            ], 422);
+        }
+
+        $input = $validator->validated();
+
+        $dataBaru = [
+            'name' => $input['name'] ?? null ?: $genre->name,
+            'description' => $input['description'] ?? null ?: $genre->description,
+        ];
+
+        $genre->update($dataBaru);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully to update data',
+            'data' => $dataBaru
+        ], 200);
     }
 
     /**
@@ -100,6 +152,23 @@ class GenreController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $genre = Genre::find($id);
+
+        if(!$genre){
+            $data = [
+                'success' => false,
+                'message' => 'Data not found'
+            ];
+            return response()->json($data, 404);
+        }
+
+        $genre->delete();
+
+        $data = [
+            'success' => true,
+            'message' => 'Resource deleted successfully',
+            'data' => $genre
+        ];
+        return response()->json($data, 200);
     }
 }

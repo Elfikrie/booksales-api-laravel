@@ -74,7 +74,23 @@ class AuthorController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $author = Author::find($id);
+
+        if(!$author){
+            $data = [
+                'success' => false,
+                'message' => 'data not found',
+            ];
+            return response()->json($data, 404);
+        }
+
+        $data = [
+            'success' => true,
+            'message' => 'data is found',
+            'data' => $author
+        ];
+
+        return response()->json($data, 200);
     }
 
     /**
@@ -90,7 +106,37 @@ class AuthorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $author = Author::find($id);
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'nullable|string|max:255',
+            'photo' => 'nullable|string',
+            'bio' => 'nullable|string|max:255'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'success' => false,
+                'message' => 'data is wrong',
+                'data' => $validator
+            ], 422);
+        }
+
+        $input = $validator->validated();
+
+        $dataBaru = [
+            'name' => $input['name'] ?? null ?: $author->name,
+            'photo' => $input['photo'] ?? null ?: $author->photo,
+            'bio' => $input['bio'] ?? null ?: $author->bio
+        ];
+
+        $author->update($dataBaru);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully to update data',
+            'data' => $dataBaru
+        ], 200);
     }
 
     /**
@@ -98,6 +144,22 @@ class AuthorController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $author = Author::find($id);
+
+        if(!$author){
+            $data = [
+                'success' => false,
+                'message' => 'Data not found'
+            ];
+            return response()->json($data, 404);
+        }
+
+        $author->delete();
+
+        $data = [
+            'success' => true,
+            'message' => 'Resource deleted successfully',
+        ];
+        return response()->json($data, 200);
     }
 }
