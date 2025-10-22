@@ -62,13 +62,12 @@ class GenreController extends Controller
 
         $validateData = $validator->validated();
 
-        Genre::create($validateData);
-        $genres = Genre::all();
+        $newGenre = Genre::create($validateData);
 
         return response()->json([
             'success' => true,
             'message' => 'Add Resources Is Success',
-            'data' => $genres
+            'data' => $newGenre
         ], 200);
     }
 
